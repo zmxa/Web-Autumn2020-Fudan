@@ -10,13 +10,13 @@
 
 ***
 
-### 文件结构
+### 文件依赖
 请先打开服务端S.py，再启动maimn.pyw。
 同时您应当具有相同的服务器登录方式：
 ```
 user='root', password='123456', host='127.0.0.1', database='q'
 ```
-MySQL Branch的数据库Q中，应至少有下列模式的表：
+MySQL Workbench的数据库Q中，应至少有下列模式的表：
 ```
 create table t(     |   create table c(
 t_n varchar(14),    |   c_n varchar(14),
@@ -28,6 +28,8 @@ primary key(t_n)    |   primary key(c_n),
 );                  |   foreign key(t_n) references t(t_n)
                     |   );
 ```
+***
+### 文件结构
 ```
 src
 ├── img             //图片文件夹
