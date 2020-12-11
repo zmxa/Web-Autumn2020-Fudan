@@ -1,6 +1,3 @@
-<style>
-</style>
-
 # Web实验报告 
 ### 实验选题
 设计类HTTP协议
