@@ -190,14 +190,14 @@ class c1():
             i+=1
         if self.templist==[]:
             try:
-                self.tempcur = self._rdatabase.send("1select * from t")
+                self.tempcur = self._rdatabase.send("11")
             except TimeoutError as currenterror:
                 self.lr1_errhandle(currenterror)
             except AssertionError as currenterror:
                 self.lr1_errhandle(currenterror)
         else:
             try:
-                self.tempcur = self._rdatabase.send("1select * from t where "+' and '.join(self.templist))
+                self.tempcur = self._rdatabase.send("12"+' and '.join(self.templist))
             except TimeoutError as currenterror:
                 self.lr1_errhandle(currenterror)
             except AssertionError as currenterror:
@@ -225,7 +225,7 @@ class c1():
             self._lr1.configure(text="姓名与学号不能为空")
             return
         try:
-            self.tempcur = self._rdatabase.send("2insert into t values (%s,%s,%s,%s,%s,%s)" % tuple(self.templist))
+            self.tempcur = self._rdatabase.send("2(%s,%s,%s,%s,%s,%s)" % tuple(self.templist))
             self._rdatabase.commit()
             
         except TimeoutError as currenterror:
@@ -256,7 +256,7 @@ class c1():
             return
         else:
             try:
-                self.tempcur = self._rdatabase.send("3delete from t where "+' and '.join(self.templist))
+                self.tempcur = self._rdatabase.send("3"+' and '.join(self.templist))
                 self._rdatabase.commit()
                 
             except TimeoutError as currenterror:
@@ -274,19 +274,19 @@ class c1():
     def try_to_open(self,userpath):
         WORKING_PATH = os.getcwd()
         try:
-            print(userpath)
+            
             fp = open(userpath,'rb')
             return fp
         except FileNotFoundError:
             pass
         try:
-            print(WORKING_PATH+'\\'+userpath)
+            
             fp = open(WORKING_PATH+'\\'+userpath,'rb')
             return fp
         except FileNotFoundError:
             pass
         try:
-            print(WORKING_PATH+'\\img\\'+userpath)
+            
             fp = open(WORKING_PATH+'\\img\\'+userpath,'rb')
             return fp
         except FileNotFoundError:
@@ -309,14 +309,14 @@ class c1():
             i+=1
         if self.templist==[]:
             try:
-                self.tempcur = self._rdatabase.send("1select * from t")
+                self.tempcur = self._rdatabase.send("11")
             except TimeoutError as currenterror:
                 self.lr1_errhandle(currenterror)
             except AssertionError as currenterror:
                 self.lr1_errhandle(currenterror)
         else:
             try:
-                self.tempcur = self._rdatabase.send("1select * from t where "+' and '.join(self.templist))
+                self.tempcur = self._rdatabase.send("12"+' and '.join(self.templist))
             except TimeoutError as currenterror:
                 self.lr1_errhandle(currenterror)
             except AssertionError as currenterror:

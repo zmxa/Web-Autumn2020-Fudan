@@ -10,15 +10,22 @@ __cnx = mysql.connector.connect(user='root', password='123456',
                               database='q')
 COMMIT_COMMAND = bytes('commit','utf-8')
 def log_and_lstrip(data,num):
-    if(data.startswith('1')):
-        data = data.lstrip('1');
+    if(data.startswith('11')):
+        data = data.lstrip('11');
         print("thread %d ask for %s." % (num,"search"))
+        data = "select * from t"
+    elif(data.startswith('12')):
+        data = data.lstrip('12');
+        print("thread %d ask for %s." % (num,"search"))
+        data = "select * from t where "+data
     elif(data.startswith('2')):
         data = data.lstrip('2');
         print("thread %d ask for %s." % (num,"insert"))
+        data = "insert into t values " + data
     elif(data.startswith('3')):
         data = data.lstrip('3');
         print("thread %d ask for %s." % (num,"delete"))
+        data = "delete from t where " +data
     return data
 
 def child_connection(num, s, conn):
