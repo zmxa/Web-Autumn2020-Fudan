@@ -10,13 +10,13 @@
 
 ***
 
-### 文件依赖
+### 文件结构
 请先打开服务端S.py，再启动maimn.pyw。
 同时您应当具有相同的服务器登录方式：
 ```
 user='root', password='123456', host='127.0.0.1', database='q'
 ```
-MySQL Workbench的数据库Q中，应至少有下列模式的表：
+MySQL WorkBranch的数据库Q中，应至少有下列模式的表：
 ```
 create table t(     |   create table c(
 t_n varchar(14),    |   c_n varchar(14),
@@ -28,8 +28,6 @@ primary key(t_n)    |   primary key(c_n),
 );                  |   foreign key(t_n) references t(t_n)
                     |   );
 ```
-***
-### 文件结构
 ```
 src
 ├── img             //图片文件夹
@@ -51,7 +49,16 @@ src
 4. 预留了flag标签，可用于登录窗体建立。
 
 ***
-
+### 远程传递细节
+使用SQL语言在服务端查询，客户端负责传递头部与详细参数
+```
+客户端发送       -->     服务端处理
+"11"            -->     select * from table  
+"12 ..."        -->     select * from table where ... and ...  
+"2(a,b,...)"    -->     insert into table values (a, b, ...)  
+"3 ..."         -->     delete from table where ...  
+```
+***
 ### 程序代码与实现分析
 `maimn.pyw`
 
@@ -297,14 +304,14 @@ def b_search(self,errlr = ""):
         i+=1
     if self.templist==[]:
         try:
-            self.tempcur = self._rdatabase.send("1select * from t")
+            self.tempcur = self._rdatabase.send("11")
         except TimeoutError as currenterror:
             self.lr1_errhandle(currenterror)
         except AssertionError as currenterror:
             self.lr1_errhandle(currenterror)
     else:
         try:
-            self.tempcur = self._rdatabase.send("1select * from t where "+' and '.join(self.templist))
+            self.tempcur = self._rdatabase.send("12"+' and '.join(self.templist))
         except TimeoutError as currenterror:
             self.lr1_errhandle(currenterror)
         except AssertionError as currenterror:
@@ -332,7 +339,7 @@ def b_add(self):
         self._lr1.configure(text="姓名与学号不能为空")
         return
     try:
-        self.tempcur = self._rdatabase.send("2insert into t values (%s,%s,%s,%s,%s,%s)" % tuple(self.templist))
+        self.tempcur = self._rdatabase.send("2(%s,%s,%s,%s,%s,%s)" % tuple(self.templist))
         self._rdatabase.commit()
         
     except TimeoutError as currenterror:
@@ -363,7 +370,7 @@ def b_delete(self):
         return
     else:
         try:
-            self.tempcur = self._rdatabase.send("3delete from t where "+' and '.join(self.templist))
+            self.tempcur = self._rdatabase.send("3"+' and '.join(self.templist))
             self._rdatabase.commit()
             
         except TimeoutError as currenterror:
@@ -376,7 +383,33 @@ def b_delete(self):
         item.delete(0,END)
     del self.tempcur,self.templist,self.tempe
     self.b_search(errlr=errtext)
-                      
+
+#尝试打开照片
+def try_to_open(self,userpath):
+    WORKING_PATH = os.getcwd()
+    try:
+        
+        fp = open(userpath,'rb')
+        return fp
+    except FileNotFoundError:
+        pass
+    try:
+        
+        fp = open(WORKING_PATH+'\\'+userpath,'rb')
+        return fp
+    except FileNotFoundError:
+        pass
+    try:
+        
+        fp = open(WORKING_PATH+'\\img\\'+userpath,'rb')
+        return fp
+    except FileNotFoundError:
+        pass
+    try:
+        return open(r'E:\复旦小学的资料\第七学期\计算机网络\实验\实验5\img\14.png','rb')
+    except FileNotFoundError:
+        raise AssertionError(r'未找到 E:\复旦小学的资料\第七学期\计算机网络\实验\实验5\img\14.png','rb')
+                                
 #对唯一结果显示照片
 def b_detailsearch(self):
     self._lr1.configure(text="")
@@ -390,14 +423,14 @@ def b_detailsearch(self):
         i+=1
     if self.templist==[]:
         try:
-            self.tempcur = self._rdatabase.send("1select * from t")
+            self.tempcur = self._rdatabase.send("11")
         except TimeoutError as currenterror:
             self.lr1_errhandle(currenterror)
         except AssertionError as currenterror:
             self.lr1_errhandle(currenterror)
     else:
         try:
-            self.tempcur = self._rdatabase.send("1select * from t where "+' and '.join(self.templist))
+            self.tempcur = self._rdatabase.send("12"+' and '.join(self.templist))
         except TimeoutError as currenterror:
             self.lr1_errhandle(currenterror)
         except AssertionError as currenterror:
@@ -497,15 +530,22 @@ if __name__ == "__main__":
 COMMIT_COMMAND = bytes('commit','utf-8')
 #头部信息解码并在服务端记录
 def log_and_lstrip(data,num):
-    if(data.startswith('1')):
-        data = data.lstrip('1');
+    if(data.startswith('11')):
+        data = data.lstrip('11');
         print("thread %d ask for %s." % (num,"search"))
+        data = "select * from t"
+    elif(data.startswith('12')):
+        data = data.lstrip('12');
+        print("thread %d ask for %s." % (num,"search"))
+        data = "select * from t where "+data
     elif(data.startswith('2')):
         data = data.lstrip('2');
         print("thread %d ask for %s." % (num,"insert"))
+        data = "insert into t values " + data
     elif(data.startswith('3')):
         data = data.lstrip('3');
         print("thread %d ask for %s." % (num,"delete"))
+        data = "delete from t where " +data
     return data
 
 #使用线程解决客户端请求
